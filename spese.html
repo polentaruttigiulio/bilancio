@@ -57,18 +57,25 @@
     color: var(--text-mid);
     font-family: 'DM Mono', monospace;
   }
-  .date-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--accent-dim);
-    border: 1px solid rgba(200,240,96,0.2);
-    color: var(--accent);
+  /* DATA INPUT */
+  input[type="date"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
     font-family: 'DM Mono', monospace;
-    font-size: 0.78rem;
-    padding: 5px 10px;
-    border-radius: 999px;
-    width: fit-content;
+    font-size: 1rem;
+    padding: 13px 16px;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input[type="date"]:focus { border-color: var(--accent); }
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.6);
+    cursor: pointer;
   }
   .divider {
     height: 1px;
@@ -273,11 +280,12 @@
     <div class="subtitle" id="meseLabel">caricamento...</div>
   </div>
 
-  <div class="date-badge" id="dateBadge">
-    📅 —
-  </div>
-
   <div class="divider"></div>
+
+  <div class="field">
+    <label>📅 Data</label>
+    <input type="date" id="dataInput" />
+  </div>
 
   <div class="field">
     <label>Importo</label>
@@ -314,12 +322,20 @@ const MESI = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno",
 
 let selectedCat = null;
 const now = new Date();
-const oggi = now.getDate();
 const meseCorrente = MESI[now.getMonth()];
 
-// Date
-document.getElementById('dateBadge').textContent = '📅 ' + oggi;
+// Precompila data di oggi
+const dateInput = document.getElementById('dataInput');
+const pad = n => String(n).padStart(2,'0');
+dateInput.value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+
 document.getElementById('meseLabel').textContent = '→ ' + meseCorrente + ' ' + now.getFullYear();
+
+// Aggiorna label mese quando cambia la data
+dateInput.addEventListener('change', () => {
+  const d = new Date(dateInput.value);
+  document.getElementById('meseLabel').textContent = '→ ' + MESI[d.getMonth()] + ' ' + d.getFullYear();
+});
 
 // Categorie
 const grid = document.getElementById('catGrid');
@@ -366,13 +382,19 @@ function showToast(msg, type='success') {
 async function invia() {
   const importo = document.getElementById('importo').value;
   const dove = document.getElementById('dove').value.trim();
+  const dataVal = document.getElementById('dataInput').value;
 
   if (!importo || parseFloat(importo) <= 0) { showToast('Inserisci un importo', 'error'); return; }
   if (!selectedCat) { showToast('Seleziona una categoria', 'error'); return; }
+  if (!dataVal) { showToast('Seleziona una data', 'error'); return; }
   if (!SCRIPT_URL) {
     banner.style.display = 'block';
     showToast('Imposta prima l\'URL dello script', 'error'); return;
   }
+
+  const d = new Date(dataVal);
+  const giorno = d.getDate();
+  const meseSelezionato = MESI[d.getMonth()];
 
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
@@ -382,8 +404,8 @@ async function invia() {
     categoria: selectedCat,
     importo: parseFloat(importo),
     dove: dove || '—',
-    data: oggi,
-    mese: meseCorrente
+    data: giorno,
+    mese: meseSelezionato
   };
 
   try {
