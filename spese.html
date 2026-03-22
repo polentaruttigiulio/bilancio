@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💸 Spese</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --border: #2e2e2e;
+    --accent: #c8f060;
+    --accent-dim: rgba(200,240,96,0.10);
+    --text: #f0f0f0;
+    --text-muted: #555;
+    --text-mid: #888;
+    --radius: 14px;
+    --success: #4ade80;
+    --error: #f87171;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 16px 48px;
+  }
+  .card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 28px 24px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+  }
+  .header .subtitle {
+    font-size: 0.82rem;
+    color: var(--text-mid);
+    font-family: 'DM Mono', monospace;
+  }
+  .date-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent-dim);
+    border: 1px solid rgba(200,240,96,0.2);
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    padding: 5px 10px;
+    border-radius: 999px;
+    width: fit-content;
+  }
+  .divider {
+    height: 1px;
+    background: var(--border);
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-mid);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* IMPORTO */
+  .importo-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .importo-wrap .euro {
+    position: absolute;
+    left: 16px;
+    font-size: 1.4rem;
+    color: var(--text-mid);
+    font-weight: 300;
+    pointer-events: none;
+  }
+  input[type="number"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 1.9rem;
+    font-weight: 500;
+    padding: 14px 16px 14px 42px;
+    outline: none;
+    transition: border-color 0.2s;
+    -moz-appearance: textfield;
+  }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+  input[type="number"]:focus { border-color: var(--accent); }
+
+  /* DOVE */
+  input[type="text"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    padding: 13px 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]:focus { border-color: var(--accent); }
+  input[type="text"]::placeholder { color: var(--text-muted); }
+
+  /* CATEGORIE GRID */
+  .cat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .cat-btn {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-mid);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    padding: 9px 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    line-height: 1.3;
+  }
+  .cat-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-dim);
+  }
+  .cat-btn.selected {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0f0f0f;
+    font-weight: 600;
+  }
+
+  /* SUBMIT */
+  button.submit {
+    width: 100%;
+    background: var(--accent);
+    color: #0f0f0f;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 15px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+    letter-spacing: 0.01em;
+  }
+  button.submit:hover { opacity: 0.88; transform: translateY(-1px); }
+  button.submit:active { transform: translateY(0); }
+  button.submit:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 12px 22px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+    opacity: 0;
+    z-index: 100;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  .toast.success { border-color: var(--success); color: var(--success); }
+  .toast.error { border-color: var(--error); color: var(--error); }
+
+  /* CONFIG BANNER */
+  .config-banner {
+    width: 100%;
+    max-width: 420px;
+    background: rgba(200,240,96,0.07);
+    border: 1px dashed rgba(200,240,96,0.3);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    font-size: 0.82rem;
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 0;
+    line-height: 1.6;
+  }
+  .config-banner strong { display: block; margin-bottom: 4px; font-size: 0.78rem; opacity: 0.7; }
+
+  input.script-url {
+    width: 100%;
+    background: var(--surface2);
+    border: 1.5px solid rgba(200,240,96,0.3);
+    border-radius: 10px;
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    padding: 10px 14px;
+    outline: none;
+    margin-top: 10px;
+  }
+  input.script-url::placeholder { color: rgba(200,240,96,0.3); }
+  .save-url-btn {
+    margin-top: 8px;
+    background: transparent;
+    border: 1px solid rgba(200,240,96,0.4);
+    border-radius: 8px;
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    padding: 7px 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .save-url-btn:hover { background: var(--accent-dim); }
+</style>
+</head>
+<body>
+
+<div class="config-banner" id="configBanner">
+  <strong>⚙️ CONFIGURAZIONE</strong>
+  Incolla qui l'URL del tuo Google Apps Script:
+  <input class="script-url" id="scriptUrlInput" type="text" placeholder="https://script.google.com/macros/s/..." />
+  <button class="save-url-btn" onclick="saveUrl()">Salva URL</button>
+</div>
+
+<br>
+
+<div class="card">
+  <div class="header">
+    <h1>💸 Nuova spesa</h1>
+    <div class="subtitle" id="meseLabel">caricamento...</div>
+  </div>
+
+  <div class="date-badge" id="dateBadge">
+    📅 —
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="field">
+    <label>Importo</label>
+    <div class="importo-wrap">
+      <span class="euro">€</span>
+      <input type="number" id="importo" placeholder="0.00" step="0.01" min="0" />
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Dove / Cosa</label>
+    <input type="text" id="dove" placeholder="es. Esselunga, Pizzeria Roma..." />
+  </div>
+
+  <div class="field">
+    <label>Categoria</label>
+    <div class="cat-grid" id="catGrid"></div>
+  </div>
+
+  <button class="submit" id="submitBtn" onclick="invia()">Registra spesa</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CATEGORIE = [
+  "Spesa","Mangiare fuori","Mangiare lavoro","Bar","Shopping",
+  "Carburante","Macchina","Spese di casa","Viaggi","Abbonamenti",
+  "Amazon","Psicologo","Palestra","Svago","Extra","Regali","Farmacia","Visite"
+];
+
+const MESI = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno",
+              "Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
+
+let selectedCat = null;
+const now = new Date();
+const oggi = now.toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'numeric' });
+const meseCorrente = MESI[now.getMonth()];
+
+// Date
+document.getElementById('dateBadge').textContent = '📅 ' + oggi;
+document.getElementById('meseLabel').textContent = '→ ' + meseCorrente + ' ' + now.getFullYear();
+
+// Categorie
+const grid = document.getElementById('catGrid');
+CATEGORIE.forEach(cat => {
+  const btn = document.createElement('button');
+  btn.className = 'cat-btn';
+  btn.textContent = cat;
+  btn.onclick = () => {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedCat = cat;
+  };
+  grid.appendChild(btn);
+});
+
+// URL script
+let SCRIPT_URL = localStorage.getItem('spese_script_url') || '';
+const banner = document.getElementById('configBanner');
+const urlInput = document.getElementById('scriptUrlInput');
+urlInput.value = SCRIPT_URL;
+if (SCRIPT_URL) banner.style.display = 'none';
+
+function saveUrl() {
+  const val = urlInput.value.trim();
+  if (!val.startsWith('https://script.google.com')) {
+    showToast('URL non valido', 'error'); return;
+  }
+  SCRIPT_URL = val;
+  localStorage.setItem('spese_script_url', val);
+  banner.style.display = 'none';
+  showToast('URL salvato ✓', 'success');
+}
+
+// Toast
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = type === 'success' ? '✓ ' + msg : '✗ ' + msg;
+  t.className = 'toast ' + type;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Invia
+async function invia() {
+  const importo = document.getElementById('importo').value;
+  const dove = document.getElementById('dove').value.trim();
+
+  if (!importo || parseFloat(importo) <= 0) { showToast('Inserisci un importo', 'error'); return; }
+  if (!selectedCat) { showToast('Seleziona una categoria', 'error'); return; }
+  if (!SCRIPT_URL) {
+    banner.style.display = 'block';
+    showToast('Imposta prima l\'URL dello script', 'error'); return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Invio in corso...';
+
+  const payload = {
+    categoria: selectedCat,
+    importo: parseFloat(importo),
+    dove: dove || '—',
+    data: oggi,
+    mese: meseCorrente
+  };
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    showToast('Spesa registrata!', 'success');
+    // Reset
+    document.getElementById('importo').value = '';
+    document.getElementById('dove').value = '';
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+    selectedCat = null;
+  } catch(e) {
+    showToast('Errore di rete', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Registra spesa';
+  }
+}
+</script>
+</body>
+</html>
